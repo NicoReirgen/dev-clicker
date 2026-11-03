@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- La touche du jeu, vue de face : le flanc sombre, puis le dessus orange. -->
+  <rect x="2" y="5" width="28" height="25" rx="7" fill="#c23a1e"/>
+  <rect x="2" y="2" width="28" height="25" rx="7" fill="#ff5a36"/>
+  <!-- Le symbole du code : </> -->
+  <path d="M11 10 6.5 14.5 11 19M21 10l4.5 4.5L21 19M17.5 8.5l-3 12" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
