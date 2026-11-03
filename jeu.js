@@ -3,6 +3,7 @@
 
 const CLE_SAUVEGARDE = "dev-clicker:" + location.pathname;
 const MAX_CURSEURS = 12;
+const MAX_BUGS = 5;
 
 function jeu() {
   return {
@@ -24,6 +25,7 @@ function jeu() {
       { id: "projet", nom: "Projet de BTS : 1 000 lignes", condition: (j) => j.total >= 1000 },
       { id: "acharne", nom: "Clic infatigable : 500 clics", condition: (j) => j.clics >= 500 },
       { id: "startup", nom: "Startup : 100 000 lignes", condition: (j) => j.total >= 100000 },
+      { id: "debug", nom: "Débogueur : 10 bugs corrigés", condition: (j) => j.bugsCorriges >= 10 },
     ],
 
     // --- L'état de la partie ---
@@ -33,14 +35,22 @@ function jeu() {
     succesObtenus: [],
     notification: "",
     bulles: [],
+    bugs: [],
+    bugsCorriges: 0,
     efface: false,
 
     get parClic() {
       return 1 + this.ameliorations.reduce((somme, a) => somme + a.parClic * a.nombre, 0);
     },
 
+    // Chaque bug actif divise la production par 2 : 1 bug → ÷ 2, 2 bugs → ÷ 4, 3 bugs → ÷ 8…
+    get malus() {
+      return Math.pow(2, this.bugs.length);
+    },
+
     get parSeconde() {
-      return this.ameliorations.reduce((somme, a) => somme + a.parSeconde * a.nombre, 0);
+      const production = this.ameliorations.reduce((somme, a) => somme + a.parSeconde * a.nombre, 0);
+      return production / this.malus;
     },
 
     // Les curseurs autour de la touche : un curseur par ligne produite chaque seconde.
@@ -72,6 +82,8 @@ function jeu() {
     init() {
       this.charger();
       setInterval(() => this.gagner(this.parSeconde / 10), 100);
+      setInterval(() => this.subirBugs(), 100);
+      this.planifierBug();
       setInterval(() => this.sauvegarder(), 5000);
       window.addEventListener("beforeunload", () => this.sauvegarder());
     },
@@ -116,6 +128,40 @@ function jeu() {
       }
     },
 
+    // --- Le mini-jeu de débogage ---
+    // Un bug apparaît au hasard, toutes les 15 à 35 secondes.
+    planifierBug() {
+      const delai = 15000 + Math.random() * 20000;
+      setTimeout(() => {
+        this.apparaitreBug();
+        this.planifierBug();
+      }, delai);
+    },
+
+    apparaitreBug() {
+      // Pas de bug au tout début de la partie, ni plus de MAX_BUGS à la fois.
+      if (this.total < 50 || this.bugs.length >= MAX_BUGS) return;
+      this.bugs.push({
+        id: Date.now() + Math.random(),
+        x: 8 + Math.random() * 84, // position en % de la largeur de la fenêtre
+        y: 12 + Math.random() * 76, // position en % de la hauteur
+      });
+      this.notifier("🐛 Un bug ! Clique dessus pour le corriger.");
+    },
+
+    // Toutes les 100 ms, chaque bug efface 0,2 % des lignes : les malus se cumulent.
+    subirBugs() {
+      if (this.bugs.length === 0) return;
+      this.lignes = this.lignes * Math.pow(0.998, this.bugs.length);
+    },
+
+    corrigerBug(bug) {
+      this.bugs = this.bugs.filter((b) => b.id !== bug.id);
+      this.bugsCorriges++;
+      this.notifier("✅ Bug corrigé !");
+      this.verifierSucces();
+    },
+
     notifier(texte) {
       this.notification = texte;
       clearTimeout(this.minuteurNotification);
@@ -142,6 +188,7 @@ function jeu() {
         lignes: this.lignes,
         total: this.total,
         clics: this.clics,
+        bugsCorriges: this.bugsCorriges,
         succesObtenus: this.succesObtenus,
         achats: this.ameliorations.map((a) => ({ id: a.id, nombre: a.nombre, prix: a.prix })),
       };
@@ -159,6 +206,7 @@ function jeu() {
         this.lignes = Number(partie.lignes) || 0;
         this.total = Number(partie.total) || 0;
         this.clics = Number(partie.clics) || 0;
+        this.bugsCorriges = Number(partie.bugsCorriges) || 0;
         this.succesObtenus = Array.isArray(partie.succesObtenus) ? partie.succesObtenus : [];
         for (const achat of partie.achats || []) {
           const a = this.ameliorations.find((x) => x.id === achat.id);

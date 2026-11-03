@@ -29,6 +29,7 @@
           <span x-text="formater(parSeconde)"></span> par seconde ·
           <span x-text="formater(parClic)"></span> par clic
         </p>
+        <p class="alerte" x-show="bugs.length > 0" x-text="'🐛 ' + bugs.length + ' bug(s) : production divisée par ' + malus"></p>
         <!-- Les curseurs entourent la touche et cliquent chacun leur tour. -->
         <div class="orbite">
           <template x-for="(c, i) in curseurs" :key="i">
@@ -82,6 +83,10 @@
 
       <template x-for="b in bulles" :key="b.id">
         <span class="bulle" :style="{ left: b.x + 'px', top: b.y + 'px' }" x-text="b.texte"></span>
+      </template>
+      <!-- Le mini-jeu de débogage : clique sur un bug pour le corriger. -->
+      <template x-for="b in bugs" :key="b.id">
+        <button class="bug" :style="{ left: b.x + '%', top: b.y + '%' }" @click="corrigerBug(b)" aria-label="Corriger le bug">🐛</button>
       </template>
     </main>
   </body>
