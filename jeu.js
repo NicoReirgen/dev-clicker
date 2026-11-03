@@ -40,7 +40,7 @@ function jeu() {
     efface: false,
 
     get parClic() {
-      return 1 + this.ameliorations.reduce((somme, a) => somme + a.parClic * a.nombre, 0);
+      return 1 + this.ameliorations.reduce((somme, amelioration) => somme + amelioration.parClic * amelioration.nombre, 0);
     },
 
     // Chaque bug actif divise la production par 2 : 1 bug → ÷ 2, 2 bugs → ÷ 4, 3 bugs → ÷ 8…
@@ -49,7 +49,7 @@ function jeu() {
     },
 
     get parSeconde() {
-      const production = this.ameliorations.reduce((somme, a) => somme + a.parSeconde * a.nombre, 0);
+      const production = this.ameliorations.reduce((somme, amelioration) => somme + amelioration.parSeconde * amelioration.nombre, 0);
       return production / this.malus;
     },
 
@@ -190,7 +190,7 @@ function jeu() {
         clics: this.clics,
         bugsCorriges: this.bugsCorriges,
         succesObtenus: this.succesObtenus,
-        achats: this.ameliorations.map((a) => ({ id: a.id, nombre: a.nombre, prix: a.prix })),
+        achats: this.ameliorations.map((amelioration) => ({ id: amelioration.id, nombre: amelioration.nombre, prix: amelioration.prix })),
       };
       try {
         localStorage.setItem(CLE_SAUVEGARDE, JSON.stringify(partie));
@@ -209,10 +209,10 @@ function jeu() {
         this.bugsCorriges = Number(partie.bugsCorriges) || 0;
         this.succesObtenus = Array.isArray(partie.succesObtenus) ? partie.succesObtenus : [];
         for (const achat of partie.achats || []) {
-          const a = this.ameliorations.find((x) => x.id === achat.id);
-          if (a) {
-            a.nombre = Number(achat.nombre) || 0;
-            a.prix = Number(achat.prix) || a.prix;
+          const amelioration = this.ameliorations.find((x) => x.id === achat.id);
+          if (amelioration) {
+            amelioration.nombre = Number(achat.nombre) || 0;
+            amelioration.prix = Number(achat.prix) || amelioration.prix;
           }
         }
       } catch {

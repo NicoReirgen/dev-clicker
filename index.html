@@ -55,15 +55,15 @@
 
       <section class="boutique">
         <h2>Boutique</h2>
-        <template x-for="a in ameliorations" :key="a.id">
-          <button class="article" @click="acheter(a)" :disabled="lignes < a.prix">
-            <span class="icone" x-text="a.icone"></span>
+        <template x-for="amelioration in ameliorations" :key="amelioration.id">
+          <button class="article" @click="acheter(amelioration)" :disabled="lignes < amelioration.prix">
+            <span class="icone" x-text="amelioration.icone"></span>
             <span class="details">
-              <strong x-text="a.nom"></strong>
-              <small x-text="description(a)"></small>
+              <strong x-text="amelioration.nom"></strong>
+              <small x-text="description(amelioration)"></small>
             </span>
-            <span class="prix" x-text="formater(a.prix)"></span>
-            <span class="nombre" x-text="a.nombre"></span>
+            <span class="prix" x-text="formater(amelioration.prix)"></span>
+            <span class="nombre" x-text="amelioration.nombre"></span>
           </button>
         </template>
       </section>
