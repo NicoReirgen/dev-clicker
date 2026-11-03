@@ -177,7 +177,8 @@ p {
   transform: translateY(-2px) rotate(-1deg);
 }
 
-.gros-bouton:active {
+.gros-bouton:active,
+.gros-bouton.enfoncee {
   transform: translateY(10px);
   box-shadow:
     inset 0 -2px 0 rgba(0, 0, 0, 0.08),
@@ -185,6 +186,19 @@ p {
     0 2px 0 var(--pop-sombre),
     0 8px 14px -8px rgba(23, 20, 43, 0.45);
   transition-duration: 0.04s;
+}
+
+/* Le petit rappel sous la touche, masqué sur téléphone (pas de clavier physique). */
+.astuce {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--encre-douce);
+}
+
+@media (hover: none) {
+  .astuce {
+    display: none;
+  }
 }
 
 /* Les curseurs automatiques, disposés en cercle autour de la touche. */

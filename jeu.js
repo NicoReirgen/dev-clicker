@@ -37,6 +37,7 @@ function jeu() {
     bulles: [],
     bugs: [],
     bugsCorriges: 0,
+    toucheEnfoncee: false,
     efface: false,
 
     get parClic() {
@@ -99,6 +100,20 @@ function jeu() {
       this.clics++;
       this.gagner(this.parClic);
       this.ajouterBulle(evenement, "+" + this.formater(this.parClic));
+    },
+
+    // Chaque touche du clavier compte comme un clic, comme si on tapait vraiment du code.
+    taper(evenement) {
+      if (evenement.repeat) return; // garder une touche enfoncée ne compte qu'une fois
+      if (evenement.ctrlKey || evenement.metaKey || evenement.altKey) return; // Ctrl + S, Ctrl + R… restent normaux
+      if (evenement.key.length !== 1 && evenement.key !== "Enter") return; // pas de Tab, F5, F12, flèches…
+      // Sur un bouton, Entrée et Espace le cliquent déjà : on ne compte pas deux fois.
+      if (document.activeElement.tagName === "BUTTON" && (evenement.key === "Enter" || evenement.key === " ")) return;
+      evenement.preventDefault(); // Espace ne fait plus défiler la page
+      this.cliquer({ currentTarget: this.$refs.touche });
+      this.toucheEnfoncee = true;
+      clearTimeout(this.minuteurTouche);
+      this.minuteurTouche = setTimeout(() => (this.toucheEnfoncee = false), 90);
     },
 
     acheter(amelioration) {

@@ -17,7 +17,7 @@
       - Le style est dans style.css, les couleurs tout en haut de ce fichier.
       Pour changer le titre du jeu, modifie la balise h1 juste en dessous.
     -->
-    <main x-data="jeu()">
+    <main x-data="jeu()" @keydown.window="taper($event)">
       <header>
         <h1>Dev Clicker</h1>
         <p class="slogan">Écris du code, recrute ton équipe, deviens une légende.</p>
@@ -49,8 +49,9 @@
               <small x-show="c.valeur > 1" x-text="'+' + c.valeur"></small>
             </span>
           </template>
-          <button class="gros-bouton" @click="cliquer($event)" x-text="iconeClic" aria-label="Coder"></button>
+          <button class="gros-bouton" :class="{ enfoncee: toucheEnfoncee }" x-ref="touche" @click="cliquer($event)" x-text="iconeClic" aria-label="Coder"></button>
         </div>
+        <p class="astuce">Cliquez, ou tapez sur votre clavier</p>
       </section>
 
       <section class="boutique">
