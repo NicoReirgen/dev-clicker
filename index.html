@@ -10,12 +10,12 @@
   </head>
   <body>
     <!--
-      THESIS: une touche de clavier géante, sobre mais pop ; refuse le clicker sombre à néons.
-      OWN-WORLD: fond gris lilas à points, encre indigo, une keycap tomate, jaune soleil pour les succès, Bricolage Grotesque.
-      STORY: on clique, la touche s'enfonce, le compteur grimpe, on recrute son équipe.
-      FIRST VIEWPORT: titre en grand, compteur géant et touche tomate à gauche, boutique en touches blanches à droite.
-      FORM: clavier mécanique, rang 2, seed 1b37a482.
-      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+      Dev Clicker : la page du jeu.
+      - x-data="jeu()" relie toute la balise main aux données et fonctions de jeu.js.
+      - Chaque section est une partie du jeu : compteur, boutique, succès.
+      - Les attributs Alpine (x-text, @click, :disabled, x-for) affichent et mettent à jour la page.
+      - Le style est dans style.css, les couleurs tout en haut de ce fichier.
+      Pour changer le titre du jeu, modifie la balise h1 juste en dessous.
     -->
     <main x-data="jeu()">
       <header>
