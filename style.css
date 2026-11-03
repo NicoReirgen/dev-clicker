@@ -35,7 +35,7 @@ body {
   background: var(--fond);
   color: var(--encre);
   font-family: "Bricolage", system-ui, sans-serif;
-  line-height: 1.4;
+  line-height: 1.4; touch-action: manipulation; /* pas de zoom quand on tape vite sur mobile */
 }
 
 ::selection {
