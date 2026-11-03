@@ -1,0 +1,492 @@
+/* =========================================================
+   1. TES COULEURS — change-les pour donner ton style au jeu
+   ========================================================= */
+:root {
+  --fond: #eef0f6;        /* le fond de la page */
+  --surface: #fcfcfe;     /* les touches de la boutique */
+  --encre: #17142b;       /* le texte principal */
+  --encre-douce: #57536e; /* le texte secondaire */
+  --bordure: #d9dbe7;     /* les contours discrets */
+  --pop: #ff5a36;         /* la grosse touche et les prix */
+  --pop-sombre: #c23a1e;  /* le flanc de la grosse touche */
+  --soleil: #ffd23f;      /* les succès débloqués */
+}
+
+/* =========================================================
+   2. LA POLICE — Bricolage Grotesque, incluse dans le dossier
+   ========================================================= */
+@font-face {
+  font-family: "Bricolage";
+  src: url("bricolage.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+/* =========================================================
+   3. LA PAGE
+   ========================================================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px 16px 96px;
+  background: var(--fond);
+  color: var(--encre);
+  font-family: "Bricolage", system-ui, sans-serif;
+  line-height: 1.4;
+}
+
+::selection {
+  background: var(--soleil);
+  color: var(--encre);
+}
+
+:focus-visible {
+  outline: 3px solid var(--encre);
+  outline-offset: 3px;
+}
+
+main {
+  display: grid;
+  gap: 24px 48px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* Dès qu'il y a une boutique, la page passe sur deux colonnes (grand écran). */
+@media (min-width: 860px) {
+  main:has(.boutique) {
+    grid-template-columns: 5fr 6fr;
+    align-items: start;
+  }
+  main:has(.boutique) header {
+    grid-column: 1 / -1;
+  }
+  main:has(.boutique) .zone-clic {
+    grid-row: span 3;
+    position: sticky;
+    top: 24px;
+  }
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(40px, 7vw, 72px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+h2 span {
+  color: var(--encre-douce);
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+p {
+  margin: 0;
+}
+
+.slogan {
+  margin-top: 8px;
+  color: var(--encre-douce);
+  font-size: 18px;
+}
+
+/* =========================================================
+   4. LA ZONE DE CLIC
+   ========================================================= */
+.zone-clic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 32px 24px 40px;
+  border: 1.5px solid var(--bordure);
+  border-radius: 28px;
+  background: var(--surface);
+  text-align: center;
+  box-shadow: 0 2px 0 rgba(23, 20, 43, 0.04), 0 24px 48px -32px rgba(23, 20, 43, 0.35);
+}
+
+.total {
+  font-size: clamp(22px, 3vw, 26px);
+  font-weight: 600;
+  color: var(--encre-douce);
+}
+
+/* Le grand nombre : c'est la première span du compteur. */
+.total span:first-child {
+  display: block;
+  color: var(--encre);
+  font-size: clamp(56px, 9vw, 88px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.rythme {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--fond);
+  color: var(--encre-douce);
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* La grosse touche : une keycap qui s'enfonce quand on clique. */
+.gros-bouton {
+  width: 200px;
+  height: 200px;
+  margin-top: 28px;
+  border: none;
+  border-radius: 40px;
+  background: var(--pop);
+  font-size: 84px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Le flanc de la touche, puis son ombre sur la table. */
+  box-shadow:
+    inset 0 -6px 0 rgba(0, 0, 0, 0.08),
+    inset 0 4px 0 rgba(255, 255, 255, 0.25),
+    0 12px 0 var(--pop-sombre),
+    0 26px 32px -14px rgba(23, 20, 43, 0.45);
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.12s ease-out;
+}
+
+.gros-bouton:hover {
+  transform: translateY(-2px) rotate(-1deg);
+}
+
+.gros-bouton:active {
+  transform: translateY(10px);
+  box-shadow:
+    inset 0 -2px 0 rgba(0, 0, 0, 0.08),
+    inset 0 4px 0 rgba(255, 255, 255, 0.25),
+    0 2px 0 var(--pop-sombre),
+    0 8px 14px -8px rgba(23, 20, 43, 0.45);
+  transition-duration: 0.04s;
+}
+
+/* Les curseurs automatiques, disposés en cercle autour de la touche. */
+.orbite {
+  --rayon: 150px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: calc(var(--rayon) * 2 + 44px);
+  height: calc(var(--rayon) * 2 + 44px);
+  margin-top: 8px;
+}
+
+.orbite .gros-bouton {
+  margin-top: 0;
+}
+
+.curseur {
+  position: absolute;
+  top: calc(50% - 14px);
+  left: calc(50% - 14px);
+  width: 28px;
+  height: 28px;
+  /* On tourne d'un angle, puis on s'éloigne du centre. */
+  transform: rotate(var(--angle)) translateY(calc(-1 * var(--rayon)));
+  pointer-events: none;
+}
+
+.pointe {
+  display: block;
+  width: 28px;
+  height: 28px;
+  /* Chaque curseur clique une fois par seconde, chacun à son tour. */
+  animation: cliquer 1s cubic-bezier(0.16, 1, 0.3, 1) var(--delai) infinite;
+}
+
+.pointe svg {
+  width: 100%;
+  height: 100%;
+  /* La pointe de la flèche vise le centre de la touche. */
+  transform: rotate(215deg);
+  fill: var(--couleur-curseur, var(--surface));
+  stroke: var(--encre);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 2px rgba(23, 20, 43, 0.25));
+  /* La couleur change en douceur quand le curseur gagne en valeur. */
+  transition: fill 0.6s ease-out;
+}
+
+@keyframes cliquer {
+  0%,
+  70%,
+  100% {
+    transform: translateY(0);
+  }
+  82% {
+    transform: translateY(8px);
+  }
+}
+
+/* Les curseurs qui valent plus de 1 affichent leur valeur. */
+.curseur small {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  translate: -50% 0;
+  rotate: calc(-1 * var(--angle));
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--encre);
+  color: var(--surface);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   5. LA BOUTIQUE
+   ========================================================= */
+.boutique {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.boutique h2 {
+  margin-bottom: 2px;
+}
+
+.article {
+  display: grid;
+  grid-template-columns: 52px 1fr auto 44px;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--bordure);
+  border-radius: 18px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--bordure), 0 12px 20px -16px rgba(23, 20, 43, 0.4);
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, opacity 0.3s, filter 0.3s;
+}
+
+.article:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--bordure), 0 16px 24px -16px rgba(23, 20, 43, 0.45);
+}
+
+.article:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--bordure), 0 4px 8px -6px rgba(23, 20, 43, 0.4);
+}
+
+.article:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  filter: saturate(0.3);
+  box-shadow: 0 2px 0 var(--bordure);
+}
+
+.icone {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--fond);
+  font-size: 28px;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.details strong {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.details small {
+  color: var(--encre-douce);
+  font-size: 14px;
+}
+
+.prix {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pop) 12%, transparent);
+  color: var(--pop-sombre);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.nombre {
+  color: var(--encre);
+  font-size: 26px;
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================
+   6. LES SUCCÈS
+   ========================================================= */
+.trophees ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trophees li {
+  padding: 8px 14px;
+  border: 1.5px dashed var(--bordure);
+  border-radius: 999px;
+  color: var(--encre-douce);
+  font-size: 15px;
+}
+
+.trophees li.obtenu {
+  border: 1.5px solid var(--encre);
+  background: var(--soleil);
+  color: var(--encre);
+  font-weight: 600;
+  animation: debloquer 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes debloquer {
+  from {
+    transform: scale(0.8);
+  }
+}
+
+.recommencer {
+  justify-self: center;
+  grid-column: 1 / -1;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--encre-douce);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.recommencer:hover {
+  color: var(--pop-sombre);
+}
+
+/* =========================================================
+   7. LES ANIMATIONS : notification et petits « +1 »
+   ========================================================= */
+.notification {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 10;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: var(--encre);
+  color: var(--surface);
+  font-weight: 600;
+  box-shadow: 0 16px 32px -12px rgba(23, 20, 43, 0.5);
+  translate: -50% 0;
+}
+
+.bulle {
+  position: fixed;
+  z-index: 5;
+  color: var(--encre);
+  font-size: 26px;
+  font-weight: 800;
+  pointer-events: none;
+  translate: -50% -50%;
+  animation: monter 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes monter {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    transform: translateY(-12px) scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-90px) scale(1);
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+/* Si l'ordinateur demande moins d'animations, on les coupe. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =========================================================
+   8. SUR TÉLÉPHONE
+   ========================================================= */
+@media (max-width: 520px) {
+  .orbite {
+    --rayon: 116px;
+  }
+  .gros-bouton {
+    width: 140px;
+    height: 140px;
+    border-radius: 30px;
+    font-size: 60px;
+  }
+  .article {
+    grid-template-columns: 44px 1fr auto 28px;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .icone {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+  }
+  .details strong {
+    font-size: 16px;
+  }
+  .nombre {
+    font-size: 20px;
+  }
+}

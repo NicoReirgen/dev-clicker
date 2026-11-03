@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dev Clicker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="jeu.js"></script>
+    <script defer src="alpine.min.js"></script>
+  </head>
+  <body>
+    <!--
+      THESIS: une touche de clavier géante, sobre mais pop ; refuse le clicker sombre à néons.
+      OWN-WORLD: fond gris lilas à points, encre indigo, une keycap tomate, jaune soleil pour les succès, Bricolage Grotesque.
+      STORY: on clique, la touche s'enfonce, le compteur grimpe, on recrute son équipe.
+      FIRST VIEWPORT: titre en grand, compteur géant et touche tomate à gauche, boutique en touches blanches à droite.
+      FORM: clavier mécanique, rang 2, seed 1b37a482.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+    -->
+    <main x-data="jeu()">
+      <header>
+        <h1>Dev Clicker</h1>
+        <p class="slogan">Écris du code, recrute ton équipe, deviens une légende.</p>
+      </header>
+
+      <section class="zone-clic">
+        <p class="total"><span x-text="formater(lignes)"></span> <span x-text="unite"></span></p>
+        <p class="rythme">
+          <span x-text="formater(parSeconde)"></span> par seconde ·
+          <span x-text="formater(parClic)"></span> par clic
+        </p>
+        <!-- Les curseurs entourent la touche et cliquent chacun leur tour. -->
+        <div class="orbite">
+          <template x-for="(c, i) in curseurs" :key="i">
+            <span
+              class="curseur"
+              :style="{
+                '--angle': (i * 360 / curseurs.length) + 'deg',
+                '--delai': (i / curseurs.length) + 's',
+                '--couleur-curseur': c.couleur
+              }"
+            >
+              <span class="pointe">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 2.5 L5 19.5 L9.6 15.3 L12.6 21.8 L15.4 20.6 L12.4 14.2 L18.6 14.2 Z" />
+                </svg>
+              </span>
+              <small x-show="c.valeur > 1" x-text="'+' + c.valeur"></small>
+            </span>
+          </template>
+          <button class="gros-bouton" @click="cliquer($event)" x-text="iconeClic" aria-label="Coder"></button>
+        </div>
+      </section>
+
+      <section class="boutique">
+        <h2>Boutique</h2>
+        <template x-for="a in ameliorations" :key="a.id">
+          <button class="article" @click="acheter(a)" :disabled="lignes < a.prix">
+            <span class="icone" x-text="a.icone"></span>
+            <span class="details">
+              <strong x-text="a.nom"></strong>
+              <small x-text="description(a)"></small>
+            </span>
+            <span class="prix" x-text="formater(a.prix)"></span>
+            <span class="nombre" x-text="a.nombre"></span>
+          </button>
+        </template>
+      </section>
+
+      <section class="trophees">
+        <h2>Succès <span x-text="succesObtenus.length + ' / ' + succes.length"></span></h2>
+        <ul>
+          <template x-for="s in succes" :key="s.id">
+            <li :class="{ obtenu: succesObtenus.includes(s.id) }" x-text="s.nom"></li>
+          </template>
+        </ul>
+      </section>
+
+      <button class="recommencer" @click="recommencer()">Recommencer à zéro</button>
+
+      <p class="notification" x-show="notification" x-transition x-text="notification" aria-live="polite"></p>
+
+      <template x-for="b in bulles" :key="b.id">
+        <span class="bulle" :style="{ left: b.x + 'px', top: b.y + 'px' }" x-text="b.texte"></span>
+      </template>
+    </main>
+  </body>
+</html>
