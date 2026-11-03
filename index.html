@@ -29,7 +29,7 @@
           <span x-text="formater(parSeconde)"></span> par seconde ·
           <span x-text="formater(parClic)"></span> par clic
         </p>
-        <p class="alerte" x-show="bugs.length > 0" x-text="'🐛 ' + bugs.length + ' bug(s) : production divisée par ' + malus"></p>
+        <p class="alerte" x-show="bugsActifs > 0" x-text="'🐛 ' + bugsActifs + ' bug(s) : production divisée par ' + malus"></p>
         <!-- Les curseurs entourent la touche et cliquent chacun leur tour. -->
         <div class="orbite">
           <template x-for="(c, i) in curseurs" :key="i">
@@ -70,10 +70,10 @@
       </section>
 
       <section class="trophees">
-        <h2>Succès <span x-text="succesObtenus.length + ' / ' + succes.length"></span></h2>
+        <h2>Succès <span x-text="nombreSucces + ' / ' + succes.length"></span></h2>
         <ul>
           <template x-for="s in succes" :key="s.id">
-            <li :class="{ obtenu: succesObtenus.includes(s.id) }" x-text="s.nom"></li>
+            <li :class="{ obtenu: s.obtenu }" x-text="s.nom"></li>
           </template>
         </ul>
       </section>
@@ -82,12 +82,16 @@
 
       <p class="notification" x-show="notification" x-transition x-text="notification" aria-live="polite"></p>
 
-      <template x-for="b in bulles" :key="b.id">
-        <span class="bulle" :style="{ left: b.x + 'px', top: b.y + 'px' }" x-text="b.texte"></span>
+      <template x-for="bulle in bulles" :key="bulle.id">
+        <span class="bulle" :style="{ left: bulle.x + 'px', top: bulle.y + 'px' }" x-text="bulle.texte"></span>
       </template>
       <!-- Le mini-jeu de débogage : clique sur un bug pour le corriger. -->
-      <template x-for="b in bugs" :key="b.id">
-        <button class="bug" :style="{ left: b.x + '%', top: b.y + '%' }" @click="corrigerBug(b)" aria-label="Corriger le bug">🐛</button>
+      <template x-for="bug in bugs" :key="bug.id">
+        <div>
+          <template x-if="bug.actif">
+            <button class="bug" :style="{ left: bug.x + '%', top: bug.y + '%' }" @click="corrigerBug(bug)" aria-label="Corriger le bug">🐛</button>
+          </template>
+        </div>
       </template>
     </main>
   </body>

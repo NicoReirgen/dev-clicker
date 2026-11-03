@@ -1,9 +1,9 @@
 // jeu.js — toute la logique de ton jeu.
 // Alpine.js s'occupe du reste : dès qu'une donnée change, la page se met à jour toute seule.
 
-const CLE_SAUVEGARDE = "dev-clicker:" + location.pathname;
+const CLE_SAUVEGARDE = "dev-clicker-v2:" + location.pathname;
 const MAX_CURSEURS = 12;
-const MAX_BUGS = 5;
+// Pour personnaliser ton jeu, regarde juste en dessous.
 
 function jeu() {
   return {
@@ -19,39 +19,70 @@ function jeu() {
       { id: "datacenter", icone: "🏭", nom: "Data center", prix: 25000, parClic: 0, parSeconde: 300, nombre: 0 },
     ],
     succes: [
-      { id: "hello", nom: "Hello world : 1er clic", condition: (j) => j.clics >= 1 },
-      { id: "script", nom: "Premier script : 100 lignes", condition: (j) => j.total >= 100 },
-      { id: "equipe", nom: "Chef d'équipe : 10 par seconde", condition: (j) => j.parSeconde >= 10 },
-      { id: "projet", nom: "Projet de BTS : 1 000 lignes", condition: (j) => j.total >= 1000 },
-      { id: "acharne", nom: "Clic infatigable : 500 clics", condition: (j) => j.clics >= 500 },
-      { id: "startup", nom: "Startup : 100 000 lignes", condition: (j) => j.total >= 100000 },
-      { id: "debug", nom: "Débogueur : 10 bugs corrigés", condition: (j) => j.bugsCorriges >= 10 },
+      { id: "hello", nom: "Hello world : 1er clic", obtenu: false, condition: (j) => j.clics >= 1 },
+      { id: "script", nom: "Premier script : 100 lignes", obtenu: false, condition: (j) => j.total >= 100 },
+      { id: "equipe", nom: "Chef d'équipe : 10 par seconde", obtenu: false, condition: (j) => j.parSeconde >= 10 },
+      { id: "projet", nom: "Projet de BTS : 1 000 lignes", obtenu: false, condition: (j) => j.total >= 1000 },
+      { id: "acharne", nom: "Clic infatigable : 500 clics", obtenu: false, condition: (j) => j.clics >= 500 },
+      { id: "startup", nom: "Startup : 100 000 lignes", obtenu: false, condition: (j) => j.total >= 100000 },
+      { id: "debug", nom: "Débogueur : 10 bugs corrigés", obtenu: false, condition: (j) => j.bugsCorriges >= 10 },
     ],
 
     // --- L'état de la partie ---
     lignes: 0,
     total: 0,
     clics: 0,
-    succesObtenus: [],
     notification: "",
     bulles: [],
-    bugs: [],
+    // 5 places pour les bugs : un bug « actif » est à l'écran.
+    bugs: [
+      { id: 1, actif: false, x: 0, y: 0 },
+      { id: 2, actif: false, x: 0, y: 0 },
+      { id: 3, actif: false, x: 0, y: 0 },
+      { id: 4, actif: false, x: 0, y: 0 },
+      { id: 5, actif: false, x: 0, y: 0 },
+    ],
     bugsCorriges: 0,
     toucheEnfoncee: false,
     efface: false,
 
     get parClic() {
-      return 1 + this.ameliorations.reduce((somme, amelioration) => somme + amelioration.parClic * amelioration.nombre, 0);
+      let somme = 1;
+      for (const amelioration of this.ameliorations) {
+        somme = somme + amelioration.parClic * amelioration.nombre;
+      }
+      return somme;
+    },
+
+    get parSeconde() {
+      let somme = 0;
+      for (const amelioration of this.ameliorations) {
+        somme = somme + amelioration.parSeconde * amelioration.nombre;
+      }
+      return somme / this.malus;
+    },
+
+    // Le nombre de succès obtenus, affiché à côté du titre « Succès ».
+    get nombreSucces() {
+      let nombre = 0;
+      for (const s of this.succes) {
+        if (s.obtenu) nombre++;
+      }
+      return nombre;
+    },
+
+    // Le nombre de bugs à l'écran.
+    get bugsActifs() {
+      let nombre = 0;
+      for (const bug of this.bugs) {
+        if (bug.actif) nombre++;
+      }
+      return nombre;
     },
 
     // Chaque bug actif divise la production par 2 : 1 bug → ÷ 2, 2 bugs → ÷ 4, 3 bugs → ÷ 8…
     get malus() {
-      return Math.pow(2, this.bugs.length);
-    },
-
-    get parSeconde() {
-      const production = this.ameliorations.reduce((somme, amelioration) => somme + amelioration.parSeconde * amelioration.nombre, 0);
-      return production / this.malus;
+      return Math.pow(2, this.bugsActifs);
     },
 
     // Les curseurs autour de la touche : un curseur par ligne produite chaque seconde.
@@ -91,8 +122,8 @@ function jeu() {
 
     gagner(quantite) {
       if (quantite <= 0) return;
-      this.lignes += quantite;
-      this.total += quantite;
+      this.lignes = this.lignes + quantite;
+      this.total = this.total + quantite;
       this.verifierSucces();
     },
 
@@ -118,16 +149,16 @@ function jeu() {
 
     acheter(amelioration) {
       if (this.lignes < amelioration.prix) return;
-      this.lignes -= amelioration.prix;
+      this.lignes = this.lignes - amelioration.prix;
       amelioration.nombre++;
       amelioration.prix = Math.ceil(amelioration.prix * 1.15);
     },
 
     description(amelioration) {
-      const effets = [];
-      if (amelioration.parClic) effets.push("+" + amelioration.parClic + " par clic");
-      if (amelioration.parSeconde) effets.push("+" + amelioration.parSeconde + " par seconde");
-      return effets.join(" · ");
+      let texte = "";
+      if (amelioration.parClic) texte = texte + "+" + amelioration.parClic + " par clic ";
+      if (amelioration.parSeconde) texte = texte + "+" + amelioration.parSeconde + " par seconde";
+      return texte;
     },
 
     formater(nombre) {
@@ -136,8 +167,8 @@ function jeu() {
 
     verifierSucces() {
       for (const s of this.succes) {
-        if (!this.succesObtenus.includes(s.id) && s.condition(this)) {
-          this.succesObtenus.push(s.id);
+        if (!s.obtenu && s.condition(this)) {
+          s.obtenu = true;
           this.notifier("🏆 Succès débloqué : " + s.nom);
         }
       }
@@ -154,24 +185,28 @@ function jeu() {
     },
 
     apparaitreBug() {
-      // Pas de bug au tout début de la partie, ni plus de MAX_BUGS à la fois.
-      if (this.total < 50 || this.bugs.length >= MAX_BUGS) return;
-      this.bugs.push({
-        id: Date.now() + Math.random(),
-        x: 8 + Math.random() * 84, // position en % de la largeur de la fenêtre
-        y: 12 + Math.random() * 76, // position en % de la hauteur
-      });
-      this.notifier("🐛 Un bug ! Clique dessus pour le corriger.");
+      // Pas de bug au tout début de la partie.
+      if (this.total < 50) return;
+      // On cherche une place libre : le premier bug qui n'est pas actif.
+      for (const bug of this.bugs) {
+        if (!bug.actif) {
+          bug.actif = true;
+          bug.x = 8 + Math.random() * 84; // position en % de la largeur de la fenêtre
+          bug.y = 12 + Math.random() * 76; // position en % de la hauteur
+          this.notifier("🐛 Un bug ! Clique dessus pour le corriger.");
+          return; // un seul bug à la fois
+        }
+      }
     },
 
     // Toutes les 100 ms, chaque bug efface 0,2 % des lignes : les malus se cumulent.
     subirBugs() {
-      if (this.bugs.length === 0) return;
-      this.lignes = this.lignes * Math.pow(0.998, this.bugs.length);
+      if (this.bugsActifs === 0) return;
+      this.lignes = this.lignes * Math.pow(0.998, this.bugsActifs);
     },
 
     corrigerBug(bug) {
-      this.bugs = this.bugs.filter((b) => b.id !== bug.id);
+      bug.actif = false;
       this.bugsCorriges++;
       this.notifier("✅ Bug corrigé !");
       this.verifierSucces();
@@ -186,14 +221,14 @@ function jeu() {
     // Fait monter un petit « +1 » là où on a cliqué.
     ajouterBulle(evenement, texte) {
       const cadre = evenement.currentTarget.getBoundingClientRect();
-      const id = Date.now() + Math.random();
       this.bulles.push({
-        id,
-        texte,
+        id: Date.now() + Math.random(),
+        texte: texte,
         x: evenement.clientX || cadre.left + cadre.width / 2,
         y: evenement.clientY || cadre.top + cadre.height / 2,
       });
-      setTimeout(() => (this.bulles = this.bulles.filter((b) => b.id !== id)), 800);
+      // 800 ms plus tard, l'animation est finie : on retire la plus ancienne bulle.
+      setTimeout(() => this.bulles.shift(), 800);
     },
 
     // --- Sauvegarde dans le navigateur ---
@@ -204,43 +239,43 @@ function jeu() {
         total: this.total,
         clics: this.clics,
         bugsCorriges: this.bugsCorriges,
-        succesObtenus: this.succesObtenus,
-        achats: this.ameliorations.map((amelioration) => ({ id: amelioration.id, nombre: amelioration.nombre, prix: amelioration.prix })),
+        achats: {},
+        succes: {},
       };
-      try {
-        localStorage.setItem(CLE_SAUVEGARDE, JSON.stringify(partie));
-      } catch {
-        // Navigation privée ou stockage bloqué : le jeu marche quand même, sans sauvegarde.
+      // Chaque amélioration a son casier dans achats, étiqueté par son id.
+      for (const amelioration of this.ameliorations) {
+        partie.achats[amelioration.id] = { nombre: amelioration.nombre, prix: amelioration.prix };
       }
+      // Pareil pour les succès : true s'il est obtenu, false sinon.
+      for (const s of this.succes) {
+        partie.succes[s.id] = s.obtenu;
+      }
+      localStorage.setItem(CLE_SAUVEGARDE, JSON.stringify(partie));
     },
 
     charger() {
-      try {
-        const partie = JSON.parse(localStorage.getItem(CLE_SAUVEGARDE));
-        if (!partie) return;
-        this.lignes = Number(partie.lignes) || 0;
-        this.total = Number(partie.total) || 0;
-        this.clics = Number(partie.clics) || 0;
-        this.bugsCorriges = Number(partie.bugsCorriges) || 0;
-        this.succesObtenus = Array.isArray(partie.succesObtenus) ? partie.succesObtenus : [];
-        for (const achat of partie.achats || []) {
-          const amelioration = this.ameliorations.find((x) => x.id === achat.id);
-          if (amelioration) {
-            amelioration.nombre = Number(achat.nombre) || 0;
-            amelioration.prix = Number(achat.prix) || amelioration.prix;
-          }
+      const partie = JSON.parse(localStorage.getItem(CLE_SAUVEGARDE));
+      if (!partie) return;
+      this.lignes = partie.lignes;
+      this.total = partie.total;
+      this.clics = partie.clics;
+      this.bugsCorriges = partie.bugsCorriges;
+      for (const amelioration of this.ameliorations) {
+        const achat = partie.achats[amelioration.id];
+        if (achat) {
+          amelioration.nombre = achat.nombre;
+          amelioration.prix = achat.prix;
         }
-      } catch {
-        // Sauvegarde illisible : on repart de zéro.
+      }
+      for (const s of this.succes) {
+        if (partie.succes[s.id]) s.obtenu = true;
       }
     },
 
     recommencer() {
       if (!confirm("Effacer toute ta progression ?")) return;
       this.efface = true;
-      try {
-        localStorage.removeItem(CLE_SAUVEGARDE);
-      } catch {}
+      localStorage.removeItem(CLE_SAUVEGARDE);
       location.reload();
     },
   };
